@@ -20,12 +20,14 @@
     display: inline-block;
     background: #e2eaf4;
     padding: 4%;
+    border-radius: 7px;
+
 }
 
 .treeElement:not(:first-child) {
     flex: 1;
 }
 
-.emptyDiv {
-
+.line{
+    z-index: -5;
 }

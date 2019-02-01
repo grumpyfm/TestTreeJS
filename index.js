@@ -4,17 +4,18 @@ let root = document.getElementById('root');
 TreeAPI.getData().then((res) => {
     data = res.data;
     for (let i = 0; i < data.length; i++) {
-        createElement(i);
+        createTreeElement(i);
     }
+    drawLines();
 });
 
-function createElement(i) {
+function createTreeElement(i) {
     let newElement = document.createElement('div');
     newElement.id = data[i].id;
     newElement.className = 'treeElement';
     let textSpace = document.createElement('div');
     textSpace.className = 'textSpace';
-    let span = document.createElement('div');
+    let innerText = document.createElement('div');
 
     let delButton = document.createElement('button');
     delButton.innerText = '-';
@@ -23,7 +24,7 @@ function createElement(i) {
     addButton.innerText = '+';
     addButton.setAttribute('data', 'add');
 
-    span.innerText = data[i].id;
+    innerText.innerText = data[i].id;
     if (data[i].parent === null) {
         root.appendChild(newElement);
     } else {
@@ -31,16 +32,9 @@ function createElement(i) {
         parent.appendChild(newElement);
     }
     newElement.appendChild(textSpace);
-    textSpace.appendChild(span);
-    span.appendChild(delButton);
-    span.appendChild(addButton);
-    let rect = textSpace.getBoundingClientRect();
-    // newElement.setAttribute('data-top', 'del');
-    console.log('top',rect.top);
-    console.log('rect.right', rect.right);
-    console.log('rect.bottom,', rect.bottom);
-    console.log('left',rect.left);
-
+    textSpace.appendChild(innerText);
+    innerText.appendChild(delButton);
+    innerText.appendChild(addButton);
 }
 
 function createLineElement(x, y, length, angle) {
@@ -59,14 +53,39 @@ function createLineElement(x, y, length, angle) {
     return line;
 }
 
+function drawLines() {
+    let elements = root.getElementsByClassName("line");
+    while (elements[0]) {
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].parent !== null) {
+            let elementTo = document.getElementById(data[i].id);
+            if (elementTo !== null) {
+                let elementFrom = document.getElementById(data[i].parent);
+                let textFrom = elementFrom.querySelector('.textSpace div');
+                let from = textFrom.getBoundingClientRect();
+                let x1 = (from.right - from.left) / 2 + from.left;
+                let y1 = from.bottom;
+                let textTo = elementTo.querySelector('.textSpace div');
+                let to = textTo.getBoundingClientRect();
+                let x2 = (to.right - to.left) / 2 + to.left;
+                let y2 = to.top;
+                let line = createLine(x1, y1, x2, y2);
+                line.className = 'line';
+
+                root.appendChild(line);
+            }
+        }
+    }
+}
+
 function createLine(x1, y1, x2, y2) {
     let a = x1 - x2,
         b = y1 - y2,
         c = Math.sqrt(a * a + b * b);
-
     let sx = (x1 + x2) / 2,
         sy = (y1 + y2) / 2;
-
     let x = sx - c / 2,
         y = sy;
 
@@ -75,20 +94,19 @@ function createLine(x1, y1, x2, y2) {
     return createLineElement(x, y, c, alpha);
 }
 
-root.appendChild(createLine(1321/2 , 147 , 1301, 167.4375 ));
-
 function addDel(elem) {
     this.del = function (e) {
         let target = e.target;
         let td = target.closest('.treeElement');
-        td.style.display = 'none';
+        td.parentNode.removeChild(td);
+        drawLines();
     };
-
     this.add = function (e) {
         let target = e.target;
         let td = target.closest('.treeElement');
         data.push({id: (data.length + 1).toString(), parent: td.id});
-        createElement(data.length - 1);
+        createTreeElement(data.length - 1);
+        drawLines();
     };
     let self = this;
     elem.onclick = function (e) {
@@ -99,6 +117,5 @@ function addDel(elem) {
         }
     }
 }
-
 new addDel(document.querySelector('#root'));
 
