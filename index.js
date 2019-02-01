@@ -58,7 +58,7 @@ function drawLines() {
     while (elements[0]) {
         elements[0].parentNode.removeChild(elements[0]);
     }
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i !== data.length; i++) {
         if (data[i].parent !== null) {
             let elementTo = document.getElementById(data[i].id);
             if (elementTo !== null) {
@@ -73,7 +73,6 @@ function drawLines() {
                 let y2 = to.top;
                 let line = createLine(x1, y1, x2, y2);
                 line.className = 'line';
-
                 root.appendChild(line);
             }
         }
@@ -88,7 +87,6 @@ function createLine(x1, y1, x2, y2) {
         sy = (y1 + y2) / 2;
     let x = sx - c / 2,
         y = sy;
-
     let alpha = Math.PI - Math.atan2(-b, a);
 
     return createLineElement(x, y, c, alpha);
@@ -117,5 +115,6 @@ function addDel(elem) {
         }
     }
 }
+
 new addDel(document.querySelector('#root'));
 

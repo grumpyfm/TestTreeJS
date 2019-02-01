@@ -1,16 +1,16 @@
 
-
 .treeElement {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     padding: 10px;
-    margin: 10px;
     font-size: 20px;
     text-align: center;
 }
 
 .textSpace {
+    margin: 0;
+    padding: 0;
     position: relative;
     width: 100%;
     text-align: center;
@@ -19,15 +19,14 @@
 .textSpace div {
     display: inline-block;
     background: #e2eaf4;
-    padding: 4%;
+    padding: 10px;
     border-radius: 7px;
-
 }
 
 .treeElement:not(:first-child) {
     flex: 1;
 }
 
-.line{
+.line {
     z-index: -5;
 }
