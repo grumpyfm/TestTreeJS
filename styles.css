@@ -1,4 +1,6 @@
-
+#root{
+    position: relative;
+}
 .treeElement {
     display: flex;
     justify-content: space-between;
@@ -9,7 +11,7 @@
 }
 
 .textSpace {
-    margin: 0;
+    margin: 40px;
     padding: 0;
     position: relative;
     width: 100%;
@@ -28,5 +30,13 @@
 }
 
 .line {
+}
+
+.linesForChildren {
     z-index: -5;
+
+    border: 2px solid;
+    border-bottom: none;
+    height: 20px;
+    position: absolute;
 }

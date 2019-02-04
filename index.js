@@ -6,7 +6,7 @@ TreeAPI.getData().then((res) => {
     for (let i = 0; i < data.length; i++) {
         createTreeElement(i);
     }
-    drawLines();
+    createLine();
 });
 
 function createTreeElement(i) {
@@ -37,74 +37,134 @@ function createTreeElement(i) {
     innerText.appendChild(addButton);
 }
 
-function createLineElement(x, y, length, angle) {
-    let line = document.createElement("div");
-    let styles = 'border: 1px solid black; '
-        + 'width: ' + length + 'px; '
-        + 'height: 0px; '
-        + '-moz-transform: rotate(' + angle + 'rad); '
-        + '-webkit-transform: rotate(' + angle + 'rad); '
-        + '-o-transform: rotate(' + angle + 'rad); '
-        + '-ms-transform: rotate(' + angle + 'rad); '
-        + 'position: absolute; '
-        + 'top: ' + y + 'px; '
-        + 'left: ' + x + 'px; ';
-    line.setAttribute('style', styles);
-    return line;
-}
+// function createLineElement(x, y, length, angle) {
+//     let line = document.createElement("div");
+//     let styles = 'border: 1px solid black; '
+//         + 'width: ' + length + 'px; '
+//         + 'height: 0px; '
+//         + '-moz-transform: rotate(' + angle + 'rad); '
+//         + '-webkit-transform: rotate(' + angle + 'rad); '
+//         + '-o-transform: rotate(' + angle + 'rad); '
+//         + '-ms-transform: rotate(' + angle + 'rad); '
+//         + 'position: absolute; '
+//         + 'top: ' + y + 'px; '
+//         + 'left: ' + x + 'px; ';
+//     line.setAttribute('style', styles);
+//     return line;
+// }
 
-function drawLines() {
-    let elements = root.getElementsByClassName("line");
-    while (elements[0]) {
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-    for (let i = 0; i !== data.length; i++) {
+// function drawLines() {
+//     let elements = root.getElementsByClassName("line");
+//     while (elements[0]) {
+//         elements[0].parentNode.removeChild(elements[0]);
+//     }
+//     for (let i = 0; i !== data.length; i++) {
+//         if (data[i].parent !== null) {
+//             let elementTo = document.getElementById(data[i].id);
+//             if (elementTo !== null) {
+//                 let elementFrom = document.getElementById(data[i].parent);
+//                 let textFrom = elementFrom.querySelector('.textSpace div');
+//                 let from = textFrom.getBoundingClientRect();
+//                 let x1 = (from.right - from.left) / 2 + from.left;
+//                 let y1 = from.bottom;
+//                 let textTo = elementTo.querySelector('.textSpace div');
+//                 let to = textTo.getBoundingClientRect();
+//                 let x2 = (to.right - to.left) / 2 + to.left;
+//                 let y2 = to.top;
+//                 // let line = createLine(x1, y1, x2, y2);
+//                 // line.className = 'line';
+//                 // root.appendChild(line);
+//             }
+//         }
+//     }
+// }
+
+function createLine() {
+    for (let i = 0; i+1 !== data.length; i++) {
         if (data[i].parent !== null) {
-            let elementTo = document.getElementById(data[i].id);
-            if (elementTo !== null) {
-                let elementFrom = document.getElementById(data[i].parent);
-                let textFrom = elementFrom.querySelector('.textSpace div');
+            if (data[i].parent === data[i + 1].parent) {
+                let elementFrom = document.getElementById(data[i].id);
+                let elementTo = document.getElementById(data[i + 1].id);
+
+                if (elementTo !== null && elementFrom !== null) {
+                    let textFrom = elementFrom.querySelector('.textSpace div');
+                    let from = textFrom.getBoundingClientRect();
+                    let x1 = (from.right - from.left) / 2 + from.left;
+                    let y1 = from.bottom;
+                    let textTo = elementTo.querySelector('.textSpace div');
+                    let to = textTo.getBoundingClientRect();
+                    let x2 = (to.right - to.left) / 2 + to.left;
+                    let y2 = to.top;
+                    let width;
+                    let left;
+                    let top = y2-20;
+                    if (x1< x2) {
+                        left = x1-10;
+                        width = x2 - x1;
+                    } else {
+                        left = x2-10;
+                        width = x1 - x2;
+                    }
+                    let div = document.createElement('div');
+                    div.className = 'linesForChildren';
+                    div.style.width = `${width}px`;
+                    div.style.left =`${left}px`;
+                    div.style.top =`${top}px`;
+
+                    root.appendChild(div);
+                }
+            }
+        }
+            data.forEach((element)=>{
+            if(element.parent === data[i].id){
+                let parentFrom = document.getElementById(data[i].id);
+                let textFrom = parentFrom.querySelector('.textSpace div');
                 let from = textFrom.getBoundingClientRect();
                 let x1 = (from.right - from.left) / 2 + from.left;
                 let y1 = from.bottom;
-                let textTo = elementTo.querySelector('.textSpace div');
-                let to = textTo.getBoundingClientRect();
-                let x2 = (to.right - to.left) / 2 + to.left;
-                let y2 = to.top;
-                let line = createLine(x1, y1, x2, y2);
-                line.className = 'line';
-                root.appendChild(line);
+
+                let parentTo = document.getElementById(element.id);
+                let toFrom = parentFrom.querySelector('.textSpace div');
+                let to = textFrom.getBoundingClientRect();
+                let x2 = (from.right - from.left) / 2 + from.left;
+                let y2 = from.top;
+
+                let div = document.createElement('div');
+                div.className = 'linesFromParent';
             }
-        }
+
+        });
+
+
     }
 }
 
-function createLine(x1, y1, x2, y2) {
-    let a = x1 - x2,
-        b = y1 - y2,
-        c = Math.sqrt(a * a + b * b);
-    let sx = (x1 + x2) / 2,
-        sy = (y1 + y2) / 2;
-    let x = sx - c / 2,
-        y = sy;
-    let alpha = Math.PI - Math.atan2(-b, a);
-
-    return createLineElement(x, y, c, alpha);
-}
+// function createLine(x1, y1, x2, y2) {
+//     let a = x1 - x2,
+//         b = y1 - y2,
+//         c = Math.sqrt(a * a + b * b);
+//     let sx = (x1 + x2) / 2,
+//         sy = (y1 + y2) / 2;
+//     let x = sx - c / 2,
+//         y = sy;
+//     let alpha = Math.PI - Math.atan2(-b, a);
+//
+//     return createLineElement(x, y, c, alpha);
+// }
 
 function addDel(elem) {
     this.del = function (e) {
         let target = e.target;
         let td = target.closest('.treeElement');
         td.parentNode.removeChild(td);
-        drawLines();
+        // drawLines();
     };
     this.add = function (e) {
         let target = e.target;
         let td = target.closest('.treeElement');
         data.push({id: (data.length + 1).toString(), parent: td.id});
         createTreeElement(data.length - 1);
-        drawLines();
+        // drawLines();
     };
     let self = this;
     elem.onclick = function (e) {
