@@ -1,42 +1,82 @@
-#root{
+.root {
+    overflow-x: auto;
+}
+.root ul {
+    padding-top: 20px;
     position: relative;
+    white-space: nowrap;
 }
-.treeElement {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: 10px;
-    font-size: 20px;
-    text-align: center;
-}
-
-.textSpace {
-    margin: 40px;
-    padding: 0;
-    position: relative;
-    width: 100%;
-    text-align: center;
-}
-
-.textSpace div {
+.root li {
     display: inline-block;
-    background: #e2eaf4;
-    padding: 10px;
-    border-radius: 7px;
+    white-space: nowrap;
+    vertical-align: top;
+    margin: 0 -2px;
+    text-align: center;
+    list-style-type: none;
+    position: relative;
+    padding: 20px 5px 0;
+    transition: all .5s;
+    -webkit-transition: all .5s;
+    -moz-transition: all .5s;
 }
-
-.treeElement:not(:first-child) {
-    flex: 1;
-}
-
-.line {
-}
-
-.linesForChildren {
-    z-index: -5;
-
-    border: 2px solid;
-    border-bottom: none;
-    height: 20px;
+.root li::before,.root li::after {
+    content: '';
     position: absolute;
+    top: 0;
+    right: 50%;
+    border-top: 1px solid #ccc;
+    width: 50%;
+    height: 20px;
+}
+.root li::after {
+    right: auto;
+    left: 50%;
+    border-left: 1px solid #ccc;
+}
+.root li:only-child::after,.root li:only-child::before {
+    display: none;
+}
+.root li:only-child {
+    padding-top: 0;
+}
+
+.root li:first-child::before,.root li:last-child::after {
+    border: 0 none;
+}
+.root li:last-child::before {
+    border-right: 1px solid #ccc;
+    border-radius: 0 5px 0 0;
+}
+.root li:first-child::after {
+    border-radius: 5px 0 0 0;
+}
+.root ul ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border-left: 1px solid #ccc;
+    width: 0;
+    height: 20px;
+}
+.root li p{
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #666;
+    font-family: arial, verdana, tahoma;
+    font-size: 11px;
+    display: inline-block;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.root li a:hover,.root li a:hover+ul li p {
+    background: #c8e4f8;
+    color: #000;
+    border: 1px solid #94a0b4;
+}
+.root li a:hover+ul li::after,.root li a:hover+ul li::before,.root li a:hover+ul::before {
+    border-color: #94a0b4;
 }

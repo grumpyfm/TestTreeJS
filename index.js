@@ -1,170 +1,105 @@
-let data = [];
-let root = document.getElementById('root');
-
+let root = document.querySelector('.root ul');
+let treeData;
 TreeAPI.getData().then((res) => {
     data = res.data;
-    for (let i = 0; i < data.length; i++) {
-        createTreeElement(i);
-    }
-    createLine();
+    treeData = flatToHierarchy(data);
+    createTreeElement(treeData, root);
+
 });
 
-function createTreeElement(i) {
-    let newElement = document.createElement('div');
-    newElement.id = data[i].id;
-    newElement.className = 'treeElement';
-    let textSpace = document.createElement('div');
-    textSpace.className = 'textSpace';
-    let innerText = document.createElement('div');
-
-    let delButton = document.createElement('button');
-    delButton.innerText = '-';
-    delButton.setAttribute('data', 'del');
-    let addButton = document.createElement('button');
-    addButton.innerText = '+';
-    addButton.setAttribute('data', 'add');
-
-    innerText.innerText = data[i].id;
-    if (data[i].parent === null) {
-        root.appendChild(newElement);
-    } else {
-        let parent = document.getElementById(data[i].parent);
+function createTreeElement(array, parent) {
+    for (let i = 0; i < array.length; i++) {
+        let newElement = document.createElement('li');
+        newElement.id = array[i].id;
+        let innerText = document.createElement('p');
+        let delButton = document.createElement('button');
+        delButton.innerText = '-';
+        delButton.setAttribute('data', 'del');
+        let addButton = document.createElement('button');
+        addButton.innerText = '+';
+        addButton.setAttribute('data', 'add');
+        innerText.innerText = array[i].id;
         parent.appendChild(newElement);
-    }
-    newElement.appendChild(textSpace);
-    textSpace.appendChild(innerText);
-    innerText.appendChild(delButton);
-    innerText.appendChild(addButton);
-}
-
-// function createLineElement(x, y, length, angle) {
-//     let line = document.createElement("div");
-//     let styles = 'border: 1px solid black; '
-//         + 'width: ' + length + 'px; '
-//         + 'height: 0px; '
-//         + '-moz-transform: rotate(' + angle + 'rad); '
-//         + '-webkit-transform: rotate(' + angle + 'rad); '
-//         + '-o-transform: rotate(' + angle + 'rad); '
-//         + '-ms-transform: rotate(' + angle + 'rad); '
-//         + 'position: absolute; '
-//         + 'top: ' + y + 'px; '
-//         + 'left: ' + x + 'px; ';
-//     line.setAttribute('style', styles);
-//     return line;
-// }
-
-// function drawLines() {
-//     let elements = root.getElementsByClassName("line");
-//     while (elements[0]) {
-//         elements[0].parentNode.removeChild(elements[0]);
-//     }
-//     for (let i = 0; i !== data.length; i++) {
-//         if (data[i].parent !== null) {
-//             let elementTo = document.getElementById(data[i].id);
-//             if (elementTo !== null) {
-//                 let elementFrom = document.getElementById(data[i].parent);
-//                 let textFrom = elementFrom.querySelector('.textSpace div');
-//                 let from = textFrom.getBoundingClientRect();
-//                 let x1 = (from.right - from.left) / 2 + from.left;
-//                 let y1 = from.bottom;
-//                 let textTo = elementTo.querySelector('.textSpace div');
-//                 let to = textTo.getBoundingClientRect();
-//                 let x2 = (to.right - to.left) / 2 + to.left;
-//                 let y2 = to.top;
-//                 // let line = createLine(x1, y1, x2, y2);
-//                 // line.className = 'line';
-//                 // root.appendChild(line);
-//             }
-//         }
-//     }
-// }
-
-function createLine() {
-    for (let i = 0; i+1 !== data.length; i++) {
-        if (data[i].parent !== null) {
-            if (data[i].parent === data[i + 1].parent) {
-                let elementFrom = document.getElementById(data[i].id);
-                let elementTo = document.getElementById(data[i + 1].id);
-
-                if (elementTo !== null && elementFrom !== null) {
-                    let textFrom = elementFrom.querySelector('.textSpace div');
-                    let from = textFrom.getBoundingClientRect();
-                    let x1 = (from.right - from.left) / 2 + from.left;
-                    let y1 = from.bottom;
-                    let textTo = elementTo.querySelector('.textSpace div');
-                    let to = textTo.getBoundingClientRect();
-                    let x2 = (to.right - to.left) / 2 + to.left;
-                    let y2 = to.top;
-                    let width;
-                    let left;
-                    let top = y2-20;
-                    if (x1< x2) {
-                        left = x1-10;
-                        width = x2 - x1;
-                    } else {
-                        left = x2-10;
-                        width = x1 - x2;
-                    }
-                    let div = document.createElement('div');
-                    div.className = 'linesForChildren';
-                    div.style.width = `${width}px`;
-                    div.style.left =`${left}px`;
-                    div.style.top =`${top}px`;
-
-                    root.appendChild(div);
-                }
-            }
+        newElement.appendChild(innerText);
+        innerText.appendChild(delButton);
+        innerText.appendChild(addButton);
+        if (array[i].Children) {
+            let subTree = document.createElement('ul');
+            newElement.appendChild(subTree);
+            createTreeElement(array[i].Children, subTree);
         }
-            data.forEach((element)=>{
-            if(element.parent === data[i].id){
-                let parentFrom = document.getElementById(data[i].id);
-                let textFrom = parentFrom.querySelector('.textSpace div');
-                let from = textFrom.getBoundingClientRect();
-                let x1 = (from.right - from.left) / 2 + from.left;
-                let y1 = from.bottom;
-
-                let parentTo = document.getElementById(element.id);
-                let toFrom = parentFrom.querySelector('.textSpace div');
-                let to = textFrom.getBoundingClientRect();
-                let x2 = (from.right - from.left) / 2 + from.left;
-                let y2 = from.top;
-
-                let div = document.createElement('div');
-                div.className = 'linesFromParent';
-            }
-
-        });
-
 
     }
 }
 
-// function createLine(x1, y1, x2, y2) {
-//     let a = x1 - x2,
-//         b = y1 - y2,
-//         c = Math.sqrt(a * a + b * b);
-//     let sx = (x1 + x2) / 2,
-//         sy = (y1 + y2) / 2;
-//     let x = sx - c / 2,
-//         y = sy;
-//     let alpha = Math.PI - Math.atan2(-b, a);
-//
-//     return createLineElement(x, y, c, alpha);
-// }
+function flatToHierarchy(data) {
+    let roots = [];
+    let all = {};
+
+    data.forEach(function (item) {
+        all[item.id] = item
+    });
+
+    Object.keys(all).forEach(function (id) {
+        let item = all[id];
+        if (item.parent === null) {
+            roots.push(item)
+        } else if (item.parent in all) {
+            let p = all[item.parent];
+            if (!('Children' in p)) {
+                p.Children = []
+            }
+            p.Children.push(item)
+        }
+    });
+    return roots;
+}
+
+
+function searchTree(element, matchingId) {
+    if (element.id === matchingId) {
+        return element;
+    } else if (element.Children != null) {
+        let i;
+        let result = null;
+        for (i = 0; result == null && i < element.Children.length; i++) {
+            result = searchTree(element.Children[i], matchingId);
+        }
+        return result;
+    }
+    return null;
+}
 
 function addDel(elem) {
     this.del = function (e) {
         let target = e.target;
-        let td = target.closest('.treeElement');
-        td.parentNode.removeChild(td);
-        // drawLines();
+        let targetClosest = target.closest('li');
+        let subtreeToDelete = searchTree(treeData[0], targetClosest.getAttribute('id'));
+        if (subtreeToDelete) {
+            let parent = searchTree(treeData[0], subtreeToDelete.parent);
+            parent.Children.forEach((elem, index) => {
+                if (elem.id === subtreeToDelete.id) {
+                    parent.Children.splice(index, 1);
+                }
+            });
+        }
+        targetClosest.parentNode.removeChild(targetClosest);
+
     };
+
     this.add = function (e) {
         let target = e.target;
-        let td = target.closest('.treeElement');
-        data.push({id: (data.length + 1).toString(), parent: td.id});
-        createTreeElement(data.length - 1);
-        // drawLines();
+        let targetClosest = target.closest('li');
+        let parent = searchTree(treeData[0], targetClosest.id);
+        if (!('Children' in parent)) {
+
+            parent.Children = []
+        }
+        let dateString = "" + new Date().getTime();
+        parent.Children.push({id: dateString.substr(dateString.length - 6, 6), parent: targetClosest.id});
+        root.removeChild(root.querySelector('li'));
+        createTreeElement(treeData, root);
+
     };
     let self = this;
     elem.onclick = function (e) {
@@ -176,5 +111,5 @@ function addDel(elem) {
     }
 }
 
-new addDel(document.querySelector('#root'));
+new addDel(document.querySelector('.root'));
 
