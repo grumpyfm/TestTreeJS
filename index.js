@@ -86,50 +86,51 @@ function searchInTree(element, matchingId) {
     return null;
 }
 
-function AddDel(elem) {
-    this.del = function (e) {
-        let target = e.target;
-        let targetClosest = target.closest('li');
-        let subtreeToDelete = searchInTree(treeData[0], targetClosest.getAttribute('id'));
-        if (subtreeToDelete) {
-            let parent = searchInTree(treeData[0], subtreeToDelete.parent);
-            parent.children.forEach((elem, index) => {
-                if (elem.id === subtreeToDelete.id) {
-                    parent.children.splice(index, 1);
-                }
-            });
-        }
-        targetClosest.parentNode.removeChild(targetClosest);
-
-    };
-
-    this.add = function (e) {
-        let target = e.target;
-
-        let targetClosest = target.closest('li');
-        let parent = searchInTree(treeData[0], targetClosest.id);
-        if (!('children' in parent)) {
-            parent.children = []
-        }
-
-        let dateString = '' + new Date().getTime();
-        let newElement = {id: dateString.substr(dateString.length - 6, 6), parent: targetClosest.id};
-        parent.children.push(newElement);
-        let parentUlElement = document.getElementById(parent.id).getElementsByTagName('ul')[0];
-        if (!parentUlElement) {
-            parentUlElement = document.createElement('ul');
-            document.getElementById(parent.id).appendChild(parentUlElement);
-        }
-        createTreeElement([newElement], parentUlElement);
-    };
-    elem.onclick = (e) => {
-        let target = e.target;
-        let action = target.getAttribute('data');
-        if (action) {
-            this[action](e);
-        }
+function handleClick(e) {
+    let target = e.target;
+    let action = target.getAttribute('data');
+    if (action) {
+        this[action](e);
     }
 }
 
-new AddDel(document.querySelector('.root'));
+function del(e) {
+    let target = e.target;
+    let targetClosest = target.closest('li');
+    let subtreeToDelete = searchInTree(treeData[0], targetClosest.getAttribute('id'));
+    if (subtreeToDelete) {
+        let parent = searchInTree(treeData[0], subtreeToDelete.parent);
+        parent.children.forEach((elem, index) => {
+            if (elem.id === subtreeToDelete.id) {
+                parent.children.splice(index, 1);
+            }
+        });
+    }
+    targetClosest.parentNode.removeChild(targetClosest);
+
+}
+
+function add(e) {
+    let target = e.target;
+
+    let targetClosest = target.closest('li');
+    let parent = searchInTree(treeData[0], targetClosest.id);
+    if (!('children' in parent)) {
+        parent.children = []
+    }
+
+    let dateString = '' + new Date().getTime();
+    let newElement = {id: dateString.substr(dateString.length - 6, 6), parent: targetClosest.id};
+    parent.children.push(newElement);
+    let parentUlElement = document.getElementById(parent.id).getElementsByTagName('ul')[0];
+    if (!parentUlElement) {
+        parentUlElement = document.createElement('ul');
+        document.getElementById(parent.id).appendChild(parentUlElement);
+    }
+    createTreeElement([newElement], parentUlElement);
+}
+
+root.onclick = (event) => {
+    handleClick(event)
+};
 
