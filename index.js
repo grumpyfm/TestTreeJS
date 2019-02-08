@@ -1,32 +1,44 @@
 let root = document.querySelector('.root ul');
 let treeData;
 TreeAPI.getData().then((res) => {
-    data = res.data;
+    let data = res.data;
     treeData = flatToHierarchy(data);
     createTreeElement(treeData, root);
 
 });
 
+function createNodeContent(text) {
+    let innerText = document.createElement('p');
+    innerText.innerText = text;
+
+    let delButton = document.createElement('button');
+    delButton.innerText = '-';
+    delButton.setAttribute('data', 'del');
+
+    let addButton = document.createElement('button');
+    addButton.innerText = '+';
+    addButton.setAttribute('data', 'add');
+
+    innerText.appendChild(delButton);
+    innerText.appendChild(addButton);
+
+    return innerText;
+}
+
 function createTreeElement(array, parent) {
     for (let i = 0; i < array.length; i++) {
         let newElement = document.createElement('li');
         newElement.id = array[i].id;
-        let innerText = document.createElement('p');
-        let delButton = document.createElement('button');
-        delButton.innerText = '-';
-        delButton.setAttribute('data', 'del');
-        let addButton = document.createElement('button');
-        addButton.innerText = '+';
-        addButton.setAttribute('data', 'add');
-        innerText.innerText = array[i].id;
+
+        let innerText = createNodeContent(array[i].id);
+
         parent.appendChild(newElement);
         newElement.appendChild(innerText);
-        innerText.appendChild(delButton);
-        innerText.appendChild(addButton);
-        if (array[i].Children) {
+
+        if (array[i].children) {
             let subTree = document.createElement('ul');
             newElement.appendChild(subTree);
-            createTreeElement(array[i].Children, subTree);
+            createTreeElement(array[i].children, subTree);
         }
 
     }
@@ -35,51 +47,55 @@ function createTreeElement(array, parent) {
 function flatToHierarchy(data) {
     let roots = [];
     let all = {};
-
     data.forEach(function (item) {
         all[item.id] = item
     });
-
     Object.keys(all).forEach(function (id) {
         let item = all[id];
         if (item.parent === null) {
             roots.push(item)
         } else if (item.parent in all) {
             let p = all[item.parent];
-            if (!('Children' in p)) {
-                p.Children = []
+            if (!('children' in p)) {
+                p.children = []
             }
-            p.Children.push(item)
+            p.children.push(item)
         }
     });
+
     return roots;
 }
 
-
-function searchTree(element, matchingId) {
+/**
+ *
+ * @param element
+ * @param matchingId
+ * @returns {*}
+ */
+function searchInTree(element, matchingId) {
     if (element.id === matchingId) {
         return element;
-    } else if (element.Children != null) {
+    } else if (element.children != null) {
         let i;
         let result = null;
-        for (i = 0; result == null && i < element.Children.length; i++) {
-            result = searchTree(element.Children[i], matchingId);
+        for (i = 0; result == null && i < element.children.length; i++) {
+            result = searchInTree(element.children[i], matchingId);
         }
         return result;
     }
     return null;
 }
 
-function addDel(elem) {
+function AddDel(elem) {
     this.del = function (e) {
         let target = e.target;
         let targetClosest = target.closest('li');
-        let subtreeToDelete = searchTree(treeData[0], targetClosest.getAttribute('id'));
+        let subtreeToDelete = searchInTree(treeData[0], targetClosest.getAttribute('id'));
         if (subtreeToDelete) {
-            let parent = searchTree(treeData[0], subtreeToDelete.parent);
-            parent.Children.forEach((elem, index) => {
+            let parent = searchInTree(treeData[0], subtreeToDelete.parent);
+            parent.children.forEach((elem, index) => {
                 if (elem.id === subtreeToDelete.id) {
-                    parent.Children.splice(index, 1);
+                    parent.children.splice(index, 1);
                 }
             });
         }
@@ -89,27 +105,31 @@ function addDel(elem) {
 
     this.add = function (e) {
         let target = e.target;
+
         let targetClosest = target.closest('li');
-        let parent = searchTree(treeData[0], targetClosest.id);
-        if (!('Children' in parent)) {
-
-            parent.Children = []
+        let parent = searchInTree(treeData[0], targetClosest.id);
+        if (!('children' in parent)) {
+            parent.children = []
         }
-        let dateString = "" + new Date().getTime();
-        parent.Children.push({id: dateString.substr(dateString.length - 6, 6), parent: targetClosest.id});
-        root.removeChild(root.querySelector('li'));
-        createTreeElement(treeData, root);
 
+        let dateString = '' + new Date().getTime();
+        let newElement = {id: dateString.substr(dateString.length - 6, 6), parent: targetClosest.id};
+        parent.children.push(newElement);
+        let parentUlElement = document.getElementById(parent.id).getElementsByTagName('ul')[0];
+        if (!parentUlElement) {
+            parentUlElement = document.createElement('ul');
+            document.getElementById(parent.id).appendChild(parentUlElement);
+        }
+        createTreeElement([newElement], parentUlElement);
     };
-    let self = this;
-    elem.onclick = function (e) {
+    elem.onclick = (e) => {
         let target = e.target;
         let action = target.getAttribute('data');
         if (action) {
-            self[action](e);
+            this[action](e);
         }
     }
 }
 
-new addDel(document.querySelector('.root'));
+new AddDel(document.querySelector('.root'));
 
